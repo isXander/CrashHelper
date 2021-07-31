@@ -45,7 +45,7 @@ buildConfig {
     buildConfigField 'Int', 'VERSION_MAJOR', mod_version_major
     buildConfigField 'Int', 'VERSION_MINOR', mod_version_minor
     buildConfigField 'Int', 'VERSION_PATCH', mod_version_patch
-    buildConfigField 'Int?', 'VERSION_PRERELEASE', (isPrerelease ? "\"$mod_version_prerelease\"" : 'null')
+    buildConfigField 'Int?', 'VERSION_PRERELEASE', (isPrerelease ? mod_version_prerelease : 'null')
 
     buildConfigField 'String', 'VERSION_FULL', "\"${project.version}\""
 }
@@ -63,18 +63,15 @@ configurations {
 }
 
 dependencies {
-    // Essential
-    include 'gg.essential:loader-launchwrapper:1.0.2'
-    provided 'gg.essential:essential-1.8.9-forge:1234'
-
-    include 'dev.isXander.kotlin-forge-api:forge-event-dsl:481f620'
+    include 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
     annotationProcessor 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    include 'org.jetbrains.kotlin:kotlin-stdlib'
 }
 
 jar {
     manifest.attributes (
-            'TweakClass': 'gg.essential.loader.stage0.EssentialSetupTweaker'
+            'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+            'MixinConfigs': 'mixins.crashhelper.json'
     )
 
     enabled = false
@@ -113,7 +110,7 @@ task moveResources {
     doLast {
         ant.move (
                 file: "${buildDir}/resources/main",
-                todir: "${buildDir}/classes/java"
+                todir: "${buildDir}/classes/kotlin"
         )
     }
 }
@@ -131,7 +128,7 @@ shadowJar {
 mixin {
     disableRefMapWarning true
     defaultObfuscationEnv searge
-    add sourceSets.main, 'mixins.examplemod.refmap.json'
+    add sourceSets.main, 'mixins.crashhelper.refmap.json'
 }
 
 reobf {
@@ -144,6 +141,6 @@ reobfJar.dependsOn tasks.shadowJar
 
 sourceSets {
     main {
-        ext.refMap = 'mixins.examplemod.refmap.json'
+        ext.refMap = 'mixins.crashhelper.refmap.json'
     }
 }

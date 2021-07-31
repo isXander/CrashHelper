@@ -1,0 +1,9 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.7",
+  "package": "dev.isxander.crashhelper.mixins",
+  "refmap": "mixins.crashhelper.refmap.json",
+  "mixins": [
+    "MixinCrashReport"
+  ]
+}
