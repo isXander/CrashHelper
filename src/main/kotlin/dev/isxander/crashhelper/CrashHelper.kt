@@ -34,7 +34,7 @@ object CrashHelper {
 
             if (scannedReport == null) {
                 if (UDesktop.isLinux) try { Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor() } catch (e: Throwable) { e.printStackTrace() }
-                val options = arrayOf("Fix Issue", "Go to launcher")
+                val options = arrayOf("Open Crashlog", "Exit to launcher")
                 val input = JOptionPane.showOptionDialog(null, message, "Crash Helper", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0])
                 if (input == 0) UDesktop.browse(URI.create(hastebin))
             }
