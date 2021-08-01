@@ -3,25 +3,44 @@ package dev.isxander.crashhelper
 import com.google.common.io.Resources
 import com.google.gson.JsonArray
 import dev.isxander.crashhelper.utils.JsonObjectExt
+import gg.essential.universal.UDesktop
+import net.minecraft.client.Minecraft
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
+import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 import javax.net.ssl.HttpsURLConnection
+import javax.swing.JOptionPane
 
 object CrashHelper {
+
+    // for some reason it triggers twice idk
+    private var scannedReport: LinkedHashMap<String, ArrayList<String>>? = null
 
     private val RAM_REGEX = Pattern.compile("-Xmx(?<ram>\\d+)(?<type>[GMK])", Pattern.CASE_INSENSITIVE)
 
     @JvmStatic
     fun scanReport(report: String, description: String): String {
         try {
-            val responses = getResponses(report)
+            val responses = scannedReport ?: getResponses(report)
 
             if (responses.isEmpty()) return "$description (unknown crash)"
-            return "${arrayListOf(responses.values)[0]} (find out more here ${uploadToHastebin(convertResponsesToString(responses, report))})"
+
+            val hastebin = uploadToHastebin(convertResponsesToString(responses, report))
+            val message = ArrayList(responses.values)[0][0]
+
+            if (scannedReport == null) {
+                if (UDesktop.isLinux) try { Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor() } catch (e: Throwable) { e.printStackTrace() }
+                val options = arrayOf("Fix Issue", "Go to launcher")
+                val input = JOptionPane.showOptionDialog(null, message, "Crash Helper", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0])
+                if (input == 0) UDesktop.browse(URI.create(hastebin))
+            }
+            scannedReport = responses
+
+            return message
         } catch (e: Throwable) {
             e.printStackTrace()
             return description
@@ -105,7 +124,7 @@ object CrashHelper {
     private fun convertResponsesToString(responses: Map<String, ArrayList<String>>, report: String): String {
         val sb = StringBuilder()
         for ((category, infoList) in responses) {
-            sb.append("**$category**\n")
+            sb.append("------- $category -------\n")
             for (info in infoList) {
                 sb.append("$info\n")
             }
@@ -123,7 +142,7 @@ object CrashHelper {
         val postData: ByteArray = text.toByteArray(StandardCharsets.UTF_8)
         val postDataLength = postData.size
 
-        val requestURL = "https://hastebin.com/documents"
+        val requestURL = "https://hst.sh/documents"
         val url = URL(requestURL)
         val conn: HttpsURLConnection = url.openConnection() as HttpsURLConnection
         conn.doOutput = true
@@ -143,7 +162,7 @@ object CrashHelper {
 
         if (response.contains("\"key\"")) {
             response = response.substring(response.indexOf(":") + 2, response.length - 2)
-            response = "https://hastebin.com/$response"
+            response = "https://hst.sh/$response"
         }
 
         return response
