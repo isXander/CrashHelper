@@ -47,6 +47,7 @@ object CrashHelper {
     }
 
     private fun getResponses(report: String): LinkedHashMap<String, ArrayList<String>> {
+        @Suppress("UnstableApiUsage")
         val issues = JsonObjectExt(Resources.toString(URL("https://raw.githubusercontent.com/isXander/MinecraftIssues/main/issues.json"), StandardCharsets.UTF_8))
         val responses = linkedMapOf<String, ArrayList<String>>()
 
