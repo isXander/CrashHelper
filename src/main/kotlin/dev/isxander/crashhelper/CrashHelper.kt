@@ -54,7 +54,7 @@ object CrashHelper {
             for (categoryElement in issues[category, JsonArray()]!!) {
                 val issue = JsonObjectExt(categoryElement.asJsonObject)
                 var info = issue["info", ""]!!
-                if (info.isEmpty()) continue
+                if (info.isEmpty() && !issue.has("hardcode")) continue
 
                 var andCheck = true
                 var orCheck = true
