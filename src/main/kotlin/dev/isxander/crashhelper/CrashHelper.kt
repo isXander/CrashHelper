@@ -29,14 +29,13 @@ object CrashHelper {
 
             if (responses.isEmpty()) return "$description (unknown crash)"
 
-            val hastebin = uploadToHastebin(convertResponsesToString(responses, report))
             val message = ArrayList(responses.values)[0][0]
 
             if (scannedReport == null) {
                 if (UDesktop.isLinux) try { Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor() } catch (e: Throwable) { e.printStackTrace() }
                 val options = arrayOf("Open Crashlog", "Exit to launcher")
                 val input = JOptionPane.showOptionDialog(null, message, "Crash Helper", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0])
-                if (input == 0) UDesktop.browse(URI.create(hastebin))
+                if (input == 0) UDesktop.browse(URI.create(uploadToHastebin(convertResponsesToString(responses, report))))
             }
             scannedReport = responses
 
