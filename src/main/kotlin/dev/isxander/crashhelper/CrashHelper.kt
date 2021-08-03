@@ -5,6 +5,8 @@ import com.google.gson.JsonArray
 import dev.isxander.crashhelper.utils.JsonObjectExt
 import gg.essential.universal.UDesktop
 import net.minecraft.client.Minecraft
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
@@ -35,7 +37,14 @@ object CrashHelper {
                 if (UDesktop.isLinux) try { Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor() } catch (e: Throwable) { e.printStackTrace() }
                 val options = arrayOf("Open Crashlog", "Exit to launcher")
                 val input = JOptionPane.showOptionDialog(null, message, "Crash Helper", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0])
-                if (input == 0) UDesktop.browse(URI.create(uploadToHastebin(convertResponsesToString(responses, report))))
+                if (input == 0) {
+                    val hastebin = uploadToHastebin(convertResponsesToString(responses, report))
+
+                    val selection = StringSelection(hastebin)
+                    Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
+
+                    UDesktop.browse(URI.create(hastebin))
+                }
             }
             scannedReport = responses
 
